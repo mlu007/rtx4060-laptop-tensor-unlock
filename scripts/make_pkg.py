@@ -29,9 +29,14 @@ def main():
     args = parser.parse_args()
 
     repo = pathlib.Path(__file__).resolve().parent.parent
-    build = pathlib.Path(args.build).resolve()
-    assets = pathlib.Path(args.assets).resolve()
-    out = pathlib.Path(args.out).resolve()
+
+    def resolve(value):
+        path = pathlib.Path(value)
+        return path if path.is_absolute() else (repo / path).resolve()
+
+    build = resolve(args.build)
+    assets = resolve(args.assets)
+    out = resolve(args.out)
 
     for name in ("UNLOCK4090.EFI", "UNLOCK4090M.EFI"):
         if not (build / name).is_file():

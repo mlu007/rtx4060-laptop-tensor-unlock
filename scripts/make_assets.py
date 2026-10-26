@@ -39,8 +39,13 @@ def main():
 
     repo = pathlib.Path(__file__).resolve().parent.parent
     firmware = repo / "firmware"
-    out = pathlib.Path(args.out).resolve()
-    cache = pathlib.Path(args.cache).resolve() if args.cache else out.parent / "inputs"
+    out = pathlib.Path(args.out)
+    out = out if out.is_absolute() else (repo / out).resolve()
+    if args.cache:
+        cache = pathlib.Path(args.cache)
+        cache = cache if cache.is_absolute() else (repo / cache).resolve()
+    else:
+        cache = out.parent / "inputs"
     work = out.parent / "inputs-src"
     out.mkdir(parents=True, exist_ok=True)
     cache.mkdir(parents=True, exist_ok=True)

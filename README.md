@@ -81,6 +81,16 @@ throttle SwThermal 886/1080  SwPowerCap 169/1080
 
 需要 Python 3 与 zig **0.14.1**。
 
+### 直接用预构建镜像
+
+`prebuilt/` 里是已经构建好的四个镜像，跳构建步骤：
+
+```sh
+python scripts/make_pkg.py --build prebuilt --assets assets --out pkg
+```
+
+### 自己构建
+
 ```sh
 python build.py --zig zig --out build
 ```
@@ -130,6 +140,39 @@ powershell -NoProfile -ExecutionPolicy Bypass -File pkg\Install-Gpu4090Unlock.ps
 Windows Boot Manager 保留在第二位，作为回退。
 
 重启后：先跑解锁条目，3 秒倒计时结束自动解锁并进 Windows；倒计时内按 Esc 打开菜单，选 2 进不解锁的 Windows。
+
+## U 盘方式（不安装、不碰内置分区）
+
+不想加固件启动项，或者想先确认这台机器能不能过准入时用这条路。整个过程只写 U 盘，`磁盘管理`、BCD、`BootOrder`、内置 ESP 都不改。
+
+```sh
+python scripts/make_stick.py --out stick
+```
+
+三个变体，一次比一次更进一步：
+
+| 目录 | 镜像 | 做什么 | 开机后 |
+|---|---|---|---|
+| `stick/dryrun` | `DRYRUN4090.EFI` | 只跑准入预检，不写 GPU、不碰显示驱动 | 不按任何键 |
+| `stick/reltest` | `RELTEST4090.EFI` | 断开并重连显示驱动，验证控制台判据，不写 GPU | 倒计时内按 **U** |
+| `stick/unlockm` | `UNLOCK4090M.EFI` | 真正执行事务 | 倒计时内按 **U** |
+
+把某个变体目录**里面的内容**复制到 FAT32 U 盘根目录，得到 `\EFI\BOOT\BOOTX64.EFI` 与 `\GPU4090-ASSETS\`。三个变体都是 `EFI/BOOT/BOOTX64.EFI`，所以一次只能放一个。FAT32 单文件上限 4 GB，`gsp_ga10x.bin` 的 80.4 MB 没问题。
+
+每一轮都要冷启动：关机 → 等电源灯灭 → 长按电源键 10 秒 → 开机进启动菜单（本机 F7）→ 选带 `UEFI` 的 USB 条目。从 Windows 直接重启不行，dGPU 会保留驱动初始化后的状态，`GuAd104ColdEntry()` 会把它拒掉。
+
+日志写在 U 盘 `\GPU4090-UNLOCK\RUNnnnn.TXT`，第一轮该看到的四行：
+
+```
+PCI scan: 10de:28a0 functions found=1
+PCIe device capability=... FLR_capable=1
+FWSEC from this card's VBIOS: image_off=... image_size=... imem=... dmem=...
+release preflight: status=0
+```
+
+`FWSEC from this card's VBIOS` 出现，说明这块卡的 VBIOS 能被解析，事务有前提。
+
+失败处置只有一条：屏幕出现 `STOPPED. Power OFF with the power button.` 就长按电源断电，别软重启；日志已经在 U 盘上，不会丢。
 
 ## 验证
 
