@@ -120,7 +120,7 @@ python scripts/make_assets.py --out assets
 ## 安装
 
 ```sh
-python scripts/make_pkg.py --build build --assets assets --out pkg
+python scripts/make_pkg.py
 ```
 
 先看计划（默认 dry run，不改任何东西），需要管理员：
@@ -213,7 +213,7 @@ C:\ProgramData\Gpu4090Unlock\Uninstall.cmd /apply??   # 见脚本内 -Apply
 
 代码 GPL-2.0-only，与上游一致。保留 `LICENSE`、`LICENSE-gpu-unlock-ada`、`THIRD_PARTY_NOTICES.md`、`UPSTREAM-WINDOWS-NOTICES.md`、`NVIDIA-FILES.md`、`provenance.json`。
 
-`assets/` 里的五个文件是 NVIDIA 的签名固件，按 NVIDIA 自己的许可原样附带，来源与 SHA-256 见上表；上游项目不分发这些文件。若权利人提出要求，删除对应文件即可，`scripts/make_assets.py` 能重新生成。
+`assets/` 里的五个文件是 NVIDIA 的签名固件，按 NVIDIA 自己的许可原样附带，来源与 SHA-256 见上表，随附许可文本是 `assets/NVIDIA-LICENSE`（由 `firmware/generate_v67.py` 从同一个 `nvidia-utils` 包提取并用 SHA-256 校验）。上游项目不分发这些文件。若权利人提出要求，删除对应文件即可，`scripts/make_assets.py` 能重新生成。
 
 上游：
 - `MarvinFS/rtx4090-uefi`（本仓库的直接基线）

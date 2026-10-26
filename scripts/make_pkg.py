@@ -23,7 +23,7 @@ EXTRA = [
 
 def main():
     parser = argparse.ArgumentParser(description="组装 Windows 安装包目录（不安装任何东西）")
-    parser.add_argument("--build", default="build", help="build.py 的输出目录")
+    parser.add_argument("--build", default="prebuilt", help="存放四个 EFI 的目录，默认仓库自带的 prebuilt/")
     parser.add_argument("--assets", default="assets", help="五个固件资产所在目录")
     parser.add_argument("--out", default="pkg", help="安装包输出目录")
     args = parser.parse_args()
@@ -40,7 +40,7 @@ def main():
 
     for name in ("UNLOCK4090.EFI", "UNLOCK4090M.EFI"):
         if not (build / name).is_file():
-            parser.exit(1, f"缺少 {build / name}，先跑 build.py\n")
+            parser.exit(1, f"缺少 {build / name}：用仓库自带的 prebuilt/（默认），或先跑 build.py --out build 再传 --build build\n")
     for name in ASSETS:
         if not (assets / name).is_file():
             parser.exit(1, f"缺少 {assets / name}\n")
