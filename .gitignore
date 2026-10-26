@@ -1,0 +1,15 @@
+build/
+.build/
+pkg/
+inputs/
+inputs-src/
+testout/
+.venv/
+__pycache__/
+*.pyc
+*.o
+*.pdb
+*.lib
+local/
+bench-*.json
+clock-*.json
